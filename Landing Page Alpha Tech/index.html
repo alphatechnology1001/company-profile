@@ -336,7 +336,7 @@
         <div class="row">
           <div class="col-lg-7">
             <div class="contact-form-wrapper">
-              <form id="contactForm" onsubmit="sendEmailMailto(event)" novalidate>
+              <form id="contactForm" onsubmit="sendWhatsApp(event)" novalidate>
                 <div class="row">
                   <div class="col-md-6">
                     <div class="single-input">
@@ -375,7 +375,7 @@
                   </div>
                   <div class="col-md-12">
                     <div class="form-button">
-                      <button type="submit" id="submitBtn" class="button radius-10">Kirim Pesan <i class="lni lni-telegram-original"></i></button>
+                      <button type="submit" id="submitBtn" class="button radius-10">Kirim via WhatsApp <i class="lni lni-whatsapp"></i></button>
                     </div>
                   </div>
                 </div>
@@ -386,8 +386,8 @@
                 <div style="display:flex; align-items:center; gap:12px;">
                   <i class="lni lni-checkmark-circle" style="font-size:28px;"></i>
                   <div>
-                    <strong style="font-size:16px;">Email Client Terbuka!</strong>
-                    <p style="margin:4px 0 0; font-size:14px; opacity:.9;">Silakan kirim email yang sudah terisi di aplikasi email Anda.</p>
+                    <strong style="font-size:16px;">WhatsApp Terbuka!</strong>
+                    <p style="margin:4px 0 0; font-size:14px; opacity:.9;">Silakan kirim pesan yang terisi otomatis ke WhatsApp kami.</p>
                   </div>
                 </div>
               </div>
@@ -523,9 +523,9 @@
     <script src="assets/js/wow.min.js"></script>
     <script src="assets/js/main.js"></script>
 
-    <!-- ========================= Contact Form: Mailto Script ========================= -->
+    <!-- ========================= Contact Form: WhatsApp Script ========================= -->
     <script>
-      function sendEmailMailto(event) {
+      function sendWhatsApp(event) {
         event.preventDefault();
 
         var name    = document.getElementById('name').value.trim();
@@ -540,27 +540,25 @@
           return;
         }
 
-        // Build mailto body
-        var body = '';
+        // Build WhatsApp body
+        var body = 'Halo Alpha Tech,\n\n';
         body += 'Nama    : ' + name    + '\n';
         body += 'Email   : ' + email   + '\n';
         if (number) {
           body += 'No. HP  : ' + number + '\n';
         }
-        body += '\nPesan:\n' + message;
+        body += 'Subject : ' + subject + '\n\n';
+        body += 'Pesan:\n' + message;
 
-        var mailtoLink =
-          'mailto:alphatechnology1001@gmail.com' +
-          '?subject=' + encodeURIComponent('[Alpha Tech] ' + subject) +
-          '&body='    + encodeURIComponent(body);
+        var waLink = 'https://wa.me/6281295950399?text=' + encodeURIComponent(body);
 
-        // Open email client
-        window.location.href = mailtoLink;
+        // Open WhatsApp client
+        window.open(waLink, '_blank');
 
         // Show success notification
-        var alert = document.getElementById('successAlert');
-        alert.style.display = 'block';
-        alert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        var alertBox = document.getElementById('successAlert');
+        alertBox.style.display = 'block';
+        alertBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
         // Reset form after a short delay
         setTimeout(function() {
@@ -569,7 +567,7 @@
 
         // Hide notification after 6 seconds
         setTimeout(function() {
-          alert.style.display = 'none';
+          alertBox.style.display = 'none';
         }, 6000);
       }
     </script>
