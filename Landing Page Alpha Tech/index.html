@@ -336,50 +336,61 @@
         <div class="row">
           <div class="col-lg-7">
             <div class="contact-form-wrapper">
-              <form action="assets/php/contact.php" method="POST">
+              <form id="contactForm" onsubmit="sendEmailMailto(event)" novalidate>
                 <div class="row">
                   <div class="col-md-6">
                     <div class="single-input">
-                      <label for="name">Name</label>
-                      <input type="text" id="name" name="name" class="form-input" placeholder="Name">
+                      <label for="name">Name <span style="color:#5864FF">*</span></label>
+                      <input type="text" id="name" name="name" class="form-input" placeholder="Nama Lengkap" required>
                       <i class="lni lni-user"></i>
                     </div>
                   </div>
                   <div class="col-md-6">
                     <div class="single-input">
-                      <label for="email">Email</label>
-                      <input type="email" id="email" name="email" class="form-input" placeholder="Email">
+                      <label for="email">Email <span style="color:#5864FF">*</span></label>
+                      <input type="email" id="email" name="email" class="form-input" placeholder="Email Anda" required>
                       <i class="lni lni-envelope"></i>
                     </div>
                   </div>
                   <div class="col-md-6">
                     <div class="single-input">
-                      <label for="number">Number</label>
-                      <input type="text" id="number" name="number" class="form-input" placeholder="Number">
+                      <label for="number">Nomor HP</label>
+                      <input type="text" id="number" name="number" class="form-input" placeholder="Nomor Telepon">
                       <i class="lni lni-phone"></i>
                     </div>
                   </div>
                   <div class="col-md-6">
                     <div class="single-input">
-                      <label for="subject">Subject</label>
-                      <input type="text" id="subject" name="subject" class="form-input" placeholder="Subject">
+                      <label for="subject">Subject <span style="color:#5864FF">*</span></label>
+                      <input type="text" id="subject" name="subject" class="form-input" placeholder="Perihal" required>
                       <i class="lni lni-text-format"></i>
                     </div>
                   </div>
                   <div class="col-md-12">
                     <div class="single-input">
-                      <label for="message">Message</label>
-                      <textarea name="message" id="message" class="form-input" placeholder="Message" rows="6"></textarea>
+                      <label for="message">Pesan <span style="color:#5864FF">*</span></label>
+                      <textarea name="message" id="message" class="form-input" placeholder="Tulis pesan Anda..." rows="6" required></textarea>
                       <i class="lni lni-comments-alt"></i>
                     </div>
                   </div>
                   <div class="col-md-12">
                     <div class="form-button">
-                      <button type="submit" class="button radius-10">Submit <i class="lni lni-telegram-original"></i> </button>
+                      <button type="submit" id="submitBtn" class="button radius-10">Kirim Pesan <i class="lni lni-telegram-original"></i></button>
                     </div>
                   </div>
                 </div>
               </form>
+
+              <!-- Success Notification -->
+              <div id="successAlert" style="display:none; margin-top:20px; padding:18px 24px; background:linear-gradient(135deg,#5864FF,#8b5cf6); border-radius:12px; color:#fff; box-shadow:0 8px 24px rgba(88,100,255,0.35);">
+                <div style="display:flex; align-items:center; gap:12px;">
+                  <i class="lni lni-checkmark-circle" style="font-size:28px;"></i>
+                  <div>
+                    <strong style="font-size:16px;">Email Client Terbuka!</strong>
+                    <p style="margin:4px 0 0; font-size:14px; opacity:.9;">Silakan kirim email yang sudah terisi di aplikasi email Anda.</p>
+                  </div>
+                </div>
+              </div>
             </div>
 
           </div>
@@ -511,5 +522,56 @@
     <script src="assets/js/count-up.min.js"></script>
     <script src="assets/js/wow.min.js"></script>
     <script src="assets/js/main.js"></script>
+
+    <!-- ========================= Contact Form: Mailto Script ========================= -->
+    <script>
+      function sendEmailMailto(event) {
+        event.preventDefault();
+
+        var name    = document.getElementById('name').value.trim();
+        var email   = document.getElementById('email').value.trim();
+        var number  = document.getElementById('number').value.trim();
+        var subject = document.getElementById('subject').value.trim();
+        var message = document.getElementById('message').value.trim();
+
+        // Simple validation
+        if (!name || !email || !subject || !message) {
+          alert('Harap isi semua field yang wajib diisi (Name, Email, Subject, Pesan).');
+          return;
+        }
+
+        // Build mailto body
+        var body = '';
+        body += 'Nama    : ' + name    + '\n';
+        body += 'Email   : ' + email   + '\n';
+        if (number) {
+          body += 'No. HP  : ' + number + '\n';
+        }
+        body += '\nPesan:\n' + message;
+
+        var mailtoLink =
+          'mailto:alphatechnology1001@gmail.com' +
+          '?subject=' + encodeURIComponent('[Alpha Tech] ' + subject) +
+          '&body='    + encodeURIComponent(body);
+
+        // Open email client
+        window.location.href = mailtoLink;
+
+        // Show success notification
+        var alert = document.getElementById('successAlert');
+        alert.style.display = 'block';
+        alert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        // Reset form after a short delay
+        setTimeout(function() {
+          document.getElementById('contactForm').reset();
+        }, 1000);
+
+        // Hide notification after 6 seconds
+        setTimeout(function() {
+          alert.style.display = 'none';
+        }, 6000);
+      }
+    </script>
   </body>
 </html>
