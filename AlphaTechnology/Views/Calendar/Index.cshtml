@@ -1,0 +1,233 @@
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Kalender";
+}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Kalender</h1>
+    <p class="page-subtitle">Jadwal proyek, meeting, dan deadline penting Alpha Technology</p>
+  </div>
+  <div class="page-header-actions">
+    <button class="btn btn-primary" onclick="openNewEventModal()">
+      <i class='bx bx-plus'></i> Tambah Event
+    </button>
+  </div>
+</div>
+
+<div class="calendar-page-wrapper">
+  <div class="calendar-sidebar-panel">
+    <div class="card" style="padding:20px">
+      <div class="cal-mini-header">
+        <button class="cal-nav-btn" onclick="miniCalPrev()"><i class='bx bx-chevron-left'></i></button>
+        <span class="cal-mini-title" id="miniCalTitle">April 2026</span>
+        <button class="cal-nav-btn" onclick="miniCalNext()"><i class='bx bx-chevron-right'></i></button>
+      </div>
+      <table class="mini-calendar-grid" id="miniCalGrid"></table>
+    </div>
+    <div class="card" style="padding:20px">
+      <h6 style="font-size:13px;font-weight:700;margin-bottom:14px">Kategori Event</h6>
+      <div class="event-categories">
+        <div class="event-cat-item"><span class="cat-dot" style="background:#556ee6"></span>Meeting Klien</div>
+        <div class="event-cat-item"><span class="cat-dot" style="background:#34c38f"></span>Project Milestone</div>
+        <div class="event-cat-item"><span class="cat-dot" style="background:#f1b44c"></span>Deadline</div>
+        <div class="event-cat-item"><span class="cat-dot" style="background:#f46a6a"></span>Review & Approval</div>
+        <div class="event-cat-item"><span class="cat-dot" style="background:#50a5f1"></span>Internal</div>
+      </div>
+    </div>
+    <div class="card" style="padding:20px">
+      <h6 style="font-size:13px;font-weight:700;margin-bottom:14px">Event Mendatang</h6>
+      <div class="upcoming-events">
+        <div class="upcoming-event-item primary">
+          <div class="uev-date"><div class="uev-day">17</div><div class="uev-month">Apr</div></div>
+          <div class="uev-info"><div class="uev-title">Meeting Klien PT Maju</div><div class="uev-time"><i class='bx bx-time-five'></i> 10:00 – 11:30 WIB</div></div>
+        </div>
+        <div class="upcoming-event-item warning">
+          <div class="uev-date"><div class="uev-day">20</div><div class="uev-month">Apr</div></div>
+          <div class="uev-info"><div class="uev-title">Deadline: Inventory Module</div><div class="uev-time"><i class='bx bx-time-five'></i> Sepanjang hari</div></div>
+        </div>
+        <div class="upcoming-event-item success">
+          <div class="uev-date"><div class="uev-day">25</div><div class="uev-month">Apr</div></div>
+          <div class="uev-info"><div class="uev-title">Milestone: HR System Staging</div><div class="uev-time"><i class='bx bx-time-five'></i> 14:00 WIB</div></div>
+        </div>
+        <div class="upcoming-event-item danger">
+          <div class="uev-date"><div class="uev-day">30</div><div class="uev-month">Apr</div></div>
+          <div class="uev-info"><div class="uev-title">Review Akhir: HR System</div><div class="uev-time"><i class='bx bx-time-five'></i> 09:00 WIB</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card full-cal-wrapper">
+    <div class="cal-top-bar">
+      <div class="cal-nav">
+        <button class="cal-nav-arrow" onclick="calPrev()"><i class='bx bx-chevron-left'></i></button>
+        <span class="cal-current-month" id="calCurrentMonth">April 2026</span>
+        <button class="cal-nav-arrow" onclick="calNext()"><i class='bx bx-chevron-right'></i></button>
+        <button class="cal-nav-arrow" onclick="calToday()" style="padding:0 10px;width:auto;font-size:12px;font-family:'Poppins',sans-serif;font-weight:500;">Hari ini</button>
+      </div>
+      <div class="cal-view-btns">
+        <button class="active" onclick="setView('month',this)">Bulan</button>
+        <button onclick="setView('week',this)">Minggu</button>
+        <button onclick="setView('day',this)">Hari</button>
+        <button onclick="setView('list',this)">Daftar</button>
+      </div>
+    </div>
+    <div class="calendar-grid">
+      <div class="cal-day-headers">
+        <span>Min</span><span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span>
+      </div>
+      <div class="cal-grid-body" id="calGridBody"></div>
+    </div>
+  </div>
+</div>
+
+@section Modals {
+<div class="modal-overlay" id="eventModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h5>Tambah Event Baru</h5>
+      <button class="modal-close" onclick="closeEventModal()"><i class='bx bx-x'></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Judul Event *</label>
+        <input type="text" class="form-control" placeholder="cth: Meeting Klien PT Maju" id="eventTitle" />
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Tanggal Mulai</label><input type="date" class="form-control" id="eventStart" /></div>
+        <div class="form-group"><label class="form-label">Tanggal Selesai</label><input type="date" class="form-control" id="eventEnd" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Waktu Mulai</label><input type="time" class="form-control" id="eventTimeStart" value="09:00" /></div>
+        <div class="form-group"><label class="form-label">Waktu Selesai</label><input type="time" class="form-control" id="eventTimeEnd" value="10:00" /></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Kategori</label>
+        <select class="form-control">
+          <option>Meeting Klien</option><option>Project Milestone</option><option>Deadline</option><option>Review & Approval</option><option>Internal</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Warna</label>
+        <div class="color-swatch-group">
+          <div class="color-swatch selected" style="background:#556ee6" onclick="selectColor(this)"></div>
+          <div class="color-swatch" style="background:#34c38f" onclick="selectColor(this)"></div>
+          <div class="color-swatch" style="background:#f1b44c" onclick="selectColor(this)"></div>
+          <div class="color-swatch" style="background:#f46a6a" onclick="selectColor(this)"></div>
+          <div class="color-swatch" style="background:#50a5f1" onclick="selectColor(this)"></div>
+          <div class="color-swatch" style="background:#8B5CF6" onclick="selectColor(this)"></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Deskripsi (opsional)</label>
+        <textarea class="form-control" placeholder="Catatan tambahan..." rows="3"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeEventModal()">Batal</button>
+      <button class="btn btn-primary" onclick="saveEvent()"><i class='bx bx-check'></i> Simpan Event</button>
+    </div>
+  </div>
+</div>
+}
+
+@section Scripts {
+<script>
+  const EVENTS = [
+    { day:5,  month:3, label:'Meeting Klien Toko Berkah',   type:'primary' },
+    { day:10, month:3, label:'Milestone: HR Staging',        type:'success' },
+    { day:15, month:3, label:'Deadline Invoice #046',        type:'warning' },
+    { day:17, month:3, label:'Meeting PT Maju Bersama',      type:'primary' },
+    { day:17, month:3, label:'Review Desain E-Commerce',     type:'danger'  },
+    { day:20, month:3, label:'Deadline: Inventory Module',   type:'warning' },
+    { day:22, month:3, label:'Internal Sprint Review',       type:'info'    },
+    { day:25, month:3, label:'HR System Staging Live',       type:'success' },
+    { day:28, month:3, label:'Kick-off Payment Gateway',     type:'primary' },
+    { day:30, month:3, label:'Review Akhir HR System',       type:'danger'  },
+  ];
+
+  let currentDate = new Date(2026, 3, 1);
+  const MONTHS_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const DAYS_SHORT = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+
+  function renderMainCal() {
+    const year = currentDate.getFullYear(), month = currentDate.getMonth();
+    document.getElementById('calCurrentMonth').textContent = `${MONTHS_ID[month]} ${year}`;
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const today = new Date();
+    const grid = document.getElementById('calGridBody');
+    grid.innerHTML = '';
+    let cellCount = 0;
+    const prevDays = new Date(year, month, 0).getDate();
+    for (let i = firstDay - 1; i >= 0; i--) { grid.appendChild(makeCell(prevDays - i, true, false)); cellCount++; }
+    for (let d = 1; d <= daysInMonth; d++) {
+      const isToday = (today.getFullYear() === year && today.getMonth() === month && today.getDate() === d);
+      const cell = makeCell(d, false, isToday);
+      EVENTS.filter(e => e.day === d && e.month === month).forEach(ev => {
+        const evEl = document.createElement('div');
+        evEl.className = `cal-event ${ev.type}`;
+        evEl.textContent = ev.label;
+        cell.appendChild(evEl);
+      });
+      grid.appendChild(cell); cellCount++;
+    }
+    for (let i = 1; i <= 42 - cellCount; i++) grid.appendChild(makeCell(i, true, false));
+  }
+
+  function makeCell(day, otherMonth, isToday) {
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell' + (otherMonth ? ' other-month' : '') + (isToday ? ' today' : '');
+    const dayEl = document.createElement('div');
+    dayEl.className = 'cal-cell-day'; dayEl.textContent = day;
+    cell.appendChild(dayEl); return cell;
+  }
+
+  function calPrev()  { currentDate.setMonth(currentDate.getMonth() - 1); renderMainCal(); renderMiniCal(); }
+  function calNext()  { currentDate.setMonth(currentDate.getMonth() + 1); renderMainCal(); renderMiniCal(); }
+  function calToday() { currentDate = new Date(); renderMainCal(); renderMiniCal(); }
+
+  let miniDate = new Date(2026, 3, 1);
+  function renderMiniCal() {
+    const year = miniDate.getFullYear(), month = miniDate.getMonth();
+    document.getElementById('miniCalTitle').textContent = `${MONTHS_ID[month]} ${year}`;
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const prevDays = new Date(year, month, 0).getDate();
+    const today = new Date();
+    let html = '<thead><tr>';
+    DAYS_SHORT.forEach(d => { html += `<th>${d}</th>`; });
+    html += '</tr></thead><tbody><tr>';
+    let col = 0;
+    for (let i = firstDay - 1; i >= 0; i--) { html += `<td class="other-month">${prevDays - i}</td>`; col++; }
+    for (let d = 1; d <= daysInMonth; d++) {
+      if (col % 7 === 0 && d > 1) html += '</tr><tr>';
+      const isToday = (today.getFullYear() === year && today.getMonth() === month && today.getDate() === d);
+      const hasEv = EVENTS.some(e => e.day === d && e.month === month);
+      html += `<td class="${isToday ? 'today' : ''} ${hasEv ? 'has-event' : ''}">${d}</td>`; col++;
+    }
+    let next = 1; while (col % 7 !== 0) { html += `<td class="other-month">${next++}</td>`; col++; }
+    html += '</tr></tbody>';
+    document.getElementById('miniCalGrid').innerHTML = html;
+  }
+
+  function miniCalPrev() { miniDate.setMonth(miniDate.getMonth() - 1); renderMiniCal(); }
+  function miniCalNext() { miniDate.setMonth(miniDate.getMonth() + 1); renderMiniCal(); }
+  function setView(v, btn) { document.querySelectorAll('.cal-view-btns button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+  function openNewEventModal() { document.getElementById('eventModal').classList.add('show'); }
+  function closeEventModal()   { document.getElementById('eventModal').classList.remove('show'); }
+  function selectColor(el) { document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected')); el.classList.add('selected'); }
+  function saveEvent() {
+    const title = document.getElementById('eventTitle').value.trim();
+    if (!title) { document.getElementById('eventTitle').focus(); return; }
+    closeEventModal();
+    const toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#34c38f;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:500;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.15);display:flex;align-items:center;gap:8px;';
+    toast.innerHTML = `<i class='bx bx-check-circle' style='font-size:18px'></i> Event berhasil ditambahkan!`;
+    document.body.appendChild(toast); setTimeout(() => toast.remove(), 3000);
+  }
+  document.getElementById('eventModal').addEventListener('click', function(e) { if (e.target === this) closeEventModal(); });
+  renderMainCal(); renderMiniCal();
+</script>
+}

@@ -1,0 +1,247 @@
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Kanban Board";
+}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Kanban Board</h1>
+    <p class="page-subtitle">Sprint 3 — HR Management System · 10 Apr – 30 Apr 2026</p>
+  </div>
+  <div class="page-header-actions">
+    <select class="filter-select" id="projectFilter">
+      <option>HR Management System</option>
+      <option>E-Commerce Portal</option>
+      <option>Inventory System</option>
+      <option>Payment Gateway API</option>
+    </select>
+    <button class="btn btn-primary" onclick="quickAddCard('todo')">
+      <i class='bx bx-plus'></i> Task Baru
+    </button>
+  </div>
+</div>
+
+<div class="kanban-wrapper" id="kanbanBoard">
+
+  <div class="kanban-col" id="col-backlog" ondragover="allowDrop(event)" ondrop="drop(event,'backlog')">
+    <div class="kanban-col-header">
+      <div class="kanban-col-title"><div class="kanban-col-dot" style="background:#adb5bd"></div>Backlog</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="kanban-col-count">3</span>
+        <button class="kanban-add-btn" onclick="quickAddCard('backlog')"><i class='bx bx-plus'></i></button>
+      </div>
+    </div>
+    <div class="kanban-cards" id="cards-backlog"></div>
+    <div class="kanban-col-add" onclick="quickAddCard('backlog')"><i class='bx bx-plus'></i> Tambah Task</div>
+  </div>
+
+  <div class="kanban-col" id="col-todo" ondragover="allowDrop(event)" ondrop="drop(event,'todo')">
+    <div class="kanban-col-header">
+      <div class="kanban-col-title"><div class="kanban-col-dot" style="background:#556ee6"></div>To Do</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="kanban-col-count">4</span>
+        <button class="kanban-add-btn" onclick="quickAddCard('todo')"><i class='bx bx-plus'></i></button>
+      </div>
+    </div>
+    <div class="kanban-cards" id="cards-todo"></div>
+    <div class="kanban-col-add" onclick="quickAddCard('todo')"><i class='bx bx-plus'></i> Tambah Task</div>
+  </div>
+
+  <div class="kanban-col" id="col-inprogress" ondragover="allowDrop(event)" ondrop="drop(event,'inprogress')">
+    <div class="kanban-col-header">
+      <div class="kanban-col-title"><div class="kanban-col-dot" style="background:#f1b44c"></div>In Progress</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="kanban-col-count">3</span>
+        <button class="kanban-add-btn" onclick="quickAddCard('inprogress')"><i class='bx bx-plus'></i></button>
+      </div>
+    </div>
+    <div class="kanban-cards" id="cards-inprogress"></div>
+    <div class="kanban-col-add" onclick="quickAddCard('inprogress')"><i class='bx bx-plus'></i> Tambah Task</div>
+  </div>
+
+  <div class="kanban-col" id="col-review" ondragover="allowDrop(event)" ondrop="drop(event,'review')">
+    <div class="kanban-col-header">
+      <div class="kanban-col-title"><div class="kanban-col-dot" style="background:#50a5f1"></div>In Review</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="kanban-col-count">2</span>
+        <button class="kanban-add-btn" onclick="quickAddCard('review')"><i class='bx bx-plus'></i></button>
+      </div>
+    </div>
+    <div class="kanban-cards" id="cards-review"></div>
+    <div class="kanban-col-add" onclick="quickAddCard('review')"><i class='bx bx-plus'></i> Tambah Task</div>
+  </div>
+
+  <div class="kanban-col" id="col-done" ondragover="allowDrop(event)" ondrop="drop(event,'done')">
+    <div class="kanban-col-header">
+      <div class="kanban-col-title"><div class="kanban-col-dot" style="background:#34c38f"></div>Done</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="kanban-col-count">4</span>
+        <button class="kanban-add-btn" onclick="quickAddCard('done')"><i class='bx bx-plus'></i></button>
+      </div>
+    </div>
+    <div class="kanban-cards" id="cards-done"></div>
+    <div class="kanban-col-add" onclick="quickAddCard('done')"><i class='bx bx-plus'></i> Tambah Task</div>
+  </div>
+
+</div>
+
+@section Modals {
+<div class="modal-overlay" id="quickAddModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h5>Tambah Task Cepat</h5>
+      <button class="modal-close" onclick="closeQuickAdd()"><i class='bx bx-x'></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Judul Task *</label>
+        <input type="text" class="form-control" id="quickTaskTitle" placeholder="cth: Implementasi modul absensi" />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Prioritas</label>
+          <select class="form-control" id="quickPriority">
+            <option value="high">Tinggi</option>
+            <option value="medium" selected>Sedang</option>
+            <option value="low">Rendah</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Assignee</label>
+          <select class="form-control">
+            <option>Ryan Yudistira</option>
+            <option>Andi Developer</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeQuickAdd()">Batal</button>
+      <button class="btn btn-primary" onclick="saveQuickTask()"><i class='bx bx-check'></i> Tambah</button>
+    </div>
+  </div>
+</div>
+}
+
+@section Scripts {
+<script>
+  const CARDS = {
+    backlog: [
+      { id:'t1', title:'Integrasi BPJS Ketenagakerjaan API', desc:'Sinkronisasi data karyawan dengan sistem BPJS.', priority:'medium', tags:['API'], assignee:'RY', comments:2, attachments:1 },
+      { id:'t2', title:'Export laporan ke Excel & PDF',      desc:'Fitur export semua laporan SDM ke format Excel dan PDF.', priority:'low', tags:['Export'], assignee:'AD', comments:0, attachments:0 },
+      { id:'t3', title:'Notifikasi email otomatis',          desc:'Kirim email ke karyawan saat slip gaji terbit.', priority:'medium', tags:['Email'], assignee:'RY', comments:1, attachments:0 },
+    ],
+    todo: [
+      { id:'t4', title:'Modul manajemen cuti & izin',          desc:'Form pengajuan cuti online dengan alur approval multi-level.', priority:'high', tags:['HR','Cuti'], assignee:'RY', comments:3, attachments:2 },
+      { id:'t5', title:'Dashboard laporan SDM real-time',       desc:'Chart interaktif untuk analitik SDM.', priority:'high', tags:['Dashboard'], assignee:'AD', comments:1, attachments:0 },
+      { id:'t6', title:'Modul penggajian & slip gaji',          desc:'Kalkulasi gaji otomatis dengan komponen tunjangan dan potongan.', priority:'high', tags:['Payroll'], assignee:'RY', comments:5, attachments:3 },
+      { id:'t7', title:'User roles & permission management',    desc:'Definisi hak akses per role: Admin, HRD, Karyawan.', priority:'medium', tags:['Security'], assignee:'AD', comments:2, attachments:1 },
+    ],
+    inprogress: [
+      { id:'t8',  title:'Modul absensi dengan QR Code',   desc:'Sistem scan QR Code untuk absensi masuk/keluar.', priority:'high', tags:['Absensi','QR'], assignee:'RY', comments:4, attachments:2 },
+      { id:'t9',  title:'Implementasi modul karyawan',    desc:'CRUD data karyawan lengkap dengan foto profil dan dokumen.', priority:'medium', tags:['CRUD'], assignee:'AD', comments:2, attachments:1 },
+      { id:'t10', title:'API autentikasi JWT',             desc:'Implementasi login dengan JSON Web Token & refresh token.', priority:'high', tags:['Auth','JWT'], assignee:'RY', comments:1, attachments:0 },
+    ],
+    review: [
+      { id:'t11', title:'Desain database ERD final',    desc:'Entity Relationship Diagram final untuk seluruh modul HR.', priority:'medium', tags:['Database','ERD'], assignee:'AD', comments:3, attachments:5 },
+      { id:'t12', title:'UI/UX wireframe & prototype',  desc:'Figma prototype lengkap semua halaman dashboard HR.', priority:'high', tags:['Design'], assignee:'RY', comments:6, attachments:8 },
+    ],
+    done: [
+      { id:'t13', title:'Setup project boilerplate',           desc:'Inisialisasi proyek .NET MVC dengan struktur folder standar Alpha Tech.', priority:'medium', tags:['.NET'], assignee:'RY', comments:1, attachments:0 },
+      { id:'t14', title:'Konfigurasi database SQL Server',     desc:'Setup MS SQL Server, connection string, dan migration awal.', priority:'high', tags:['SQL'], assignee:'AD', comments:2, attachments:1 },
+      { id:'t15', title:'Meeting requirement gathering #1',    desc:'Dokumentasi kebutuhan bisnis bersama tim HRD PT Maju Bersama.', priority:'high', tags:['Meeting'], assignee:'RY', comments:4, attachments:3 },
+      { id:'t16', title:'Pembuatan dokumen SRS',               desc:'Software Requirements Specification versi 1.0', priority:'medium', tags:['Docs'], assignee:'AD', comments:0, attachments:2 },
+    ],
+  };
+
+  let draggedCard = null;
+  let currentQuickAddCol = null;
+  const PRIORITY_LABEL = { high: 'Tinggi', medium: 'Sedang', low: 'Rendah' };
+
+  function renderCards() {
+    Object.keys(CARDS).forEach(col => {
+      const container = document.getElementById(`cards-${col}`);
+      container.innerHTML = CARDS[col].map(card => buildCard(card, col)).join('');
+      const countEl = document.querySelector(`#col-${col} .kanban-col-count`);
+      if (countEl) countEl.textContent = CARDS[col].length;
+    });
+    bindDrag();
+  }
+
+  function buildCard(card, col) {
+    const isDone = col === 'done';
+    return `
+      <div class="kanban-card" draggable="true" data-id="${card.id}" data-col="${col}">
+        ${isDone ? '<div style="position:absolute;top:10px;right:10px;font-size:18px;color:var(--success)"><i class="bx bx-check-circle"></i></div>' : ''}
+        <div class="kanban-card-top">
+          <div class="kanban-card-title${isDone ? ' done' : ''}" style="${isDone ? 'text-decoration:line-through;color:var(--text-muted);padding-right:24px' : ''}">${card.title}</div>
+          ${!isDone ? `<button class="kanban-card-menu"><i class='bx bx-dots-vertical-rounded'></i></button>` : ''}
+        </div>
+        <div class="kanban-card-desc">${card.desc}</div>
+        <div class="kanban-card-tags">
+          <span class="k-priority ${card.priority}">${PRIORITY_LABEL[card.priority]}</span>
+          ${card.tags.map(t => `<span class="tag tag-primary" style="font-size:10px;padding:1px 7px">${t}</span>`).join('')}
+        </div>
+        <div class="kanban-card-footer">
+          <div class="kanban-meta">
+            <div class="kanban-meta-item"><i class='bx bx-comment-dots'></i> ${card.comments}</div>
+            <div class="kanban-meta-item"><i class='bx bx-paperclip'></i> ${card.attachments}</div>
+          </div>
+          <div style="background:${card.assignee==='RY'?'linear-gradient(135deg,#556ee6,#8B5CF6)':'linear-gradient(135deg,#34c38f,#0dcb8c)'};width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff">${card.assignee}</div>
+        </div>
+      </div>`;
+  }
+
+  function bindDrag() {
+    document.querySelectorAll('.kanban-card').forEach(card => {
+      card.addEventListener('dragstart', e => {
+        draggedCard = card;
+        setTimeout(() => card.classList.add('dragging'), 0);
+        e.dataTransfer.setData('text/plain', card.dataset.id + '|' + card.dataset.col);
+      });
+      card.addEventListener('dragend', () => { card.classList.remove('dragging'); draggedCard = null; });
+    });
+  }
+
+  function allowDrop(e) { e.preventDefault(); }
+
+  function drop(e, targetCol) {
+    e.preventDefault();
+    const [id, fromCol] = e.dataTransfer.getData('text/plain').split('|');
+    if (fromCol === targetCol) return;
+    const idx = CARDS[fromCol].findIndex(c => c.id === id);
+    if (idx === -1) return;
+    CARDS[targetCol].push(CARDS[fromCol].splice(idx, 1)[0]);
+    renderCards();
+  }
+
+  function quickAddCard(col) {
+    currentQuickAddCol = col;
+    document.getElementById('quickAddModal').classList.add('show');
+    setTimeout(() => document.getElementById('quickTaskTitle').focus(), 200);
+  }
+
+  function closeQuickAdd() {
+    document.getElementById('quickAddModal').classList.remove('show');
+    document.getElementById('quickTaskTitle').value = '';
+  }
+
+  function saveQuickTask() {
+    const title = document.getElementById('quickTaskTitle').value.trim();
+    if (!title) { document.getElementById('quickTaskTitle').focus(); return; }
+    CARDS[currentQuickAddCol].push({
+      id: 'new_' + Date.now(), title, desc: '',
+      priority: document.getElementById('quickPriority').value,
+      tags: [], assignee: 'RY', comments: 0, attachments: 0,
+    });
+    closeQuickAdd();
+    renderCards();
+  }
+
+  document.getElementById('quickAddModal').addEventListener('click', function(e) {
+    if (e.target === this) closeQuickAdd();
+  });
+
+  renderCards();
+</script>
+}

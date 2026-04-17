@@ -1,0 +1,212 @@
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Project Overview";
+}
+
+@section Head {
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Project Overview</h1>
+    <p class="page-subtitle">HR Management System — PT Maju Bersama</p>
+  </div>
+  <div class="page-header-actions">
+    <a asp-controller="Projects" asp-action="Index" class="btn btn-outline"><i class='bx bx-arrow-back'></i> Kembali</a>
+    <a asp-controller="Projects" asp-action="Create" class="btn btn-outline"><i class='bx bx-edit'></i> Edit Proyek</a>
+    <button class="btn btn-primary"><i class='bx bx-task'></i> Tambah Task</button>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:24px;overflow:visible">
+  <div class="proj-ov-hero">
+    <div class="proj-ov-top">
+      <div class="proj-ov-info">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+          <div style="width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:24px">
+            <i class='bx bx-code-alt' style="color:#fff"></i>
+          </div>
+          <div>
+            <span class="status-badge in-progress">In Progress</span>
+            <span class="tag" style="background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);margin-left:6px">Sistem Internal</span>
+          </div>
+        </div>
+        <h2>HR Management System</h2>
+        <p>Sistem manajemen SDM lengkap mencakup modul karyawan, absensi, penggajian, cuti, dan pelaporan komprehensif. Dibangun dengan .NET Framework dan MS SQL Server untuk performa optimal.</p>
+      </div>
+      <div class="proj-ov-actions">
+        <div style="text-align:center;background:rgba(255,255,255,.06);border-radius:12px;padding:14px 20px">
+          <div style="font-size:36px;font-weight:700;color:#fff;line-height:1">75%</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:4px">Progress</div>
+          <div style="height:6px;background:rgba(255,255,255,.15);border-radius:99px;margin-top:10px;width:100px">
+            <div style="height:6px;width:75%;background:var(--primary);border-radius:99px"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="proj-ov-stat-row">
+      <div class="proj-ov-stat">
+        <div class="proj-ov-stat-num">24</div>
+        <div class="proj-ov-stat-lbl">Total Tasks</div>
+      </div>
+      <div class="proj-ov-stat">
+        <div class="proj-ov-stat-num" style="color:var(--success)">18</div>
+        <div class="proj-ov-stat-lbl">Tasks Selesai</div>
+      </div>
+      <div class="proj-ov-stat">
+        <div class="proj-ov-stat-num" style="color:var(--warning)">13</div>
+        <div class="proj-ov-stat-lbl">Hari Tersisa</div>
+      </div>
+      <div class="proj-ov-stat">
+        <div class="proj-ov-stat-num" style="color:var(--primary)">Rp 45jt</div>
+        <div class="proj-ov-stat-lbl">Nilai Kontrak</div>
+      </div>
+    </div>
+
+    <div class="proj-ov-tabs">
+      <button class="proj-ov-tab active" onclick="showTab('overview', this)">Overview</button>
+      <button class="proj-ov-tab" onclick="showTab('tasks', this)">Tasks</button>
+      <button class="proj-ov-tab" onclick="showTab('team', this)">Tim</button>
+      <button class="proj-ov-tab" onclick="showTab('files', this)">Dokumen</button>
+      <button class="proj-ov-tab" onclick="showTab('timeline', this)">Timeline</button>
+    </div>
+  </div>
+
+  <div class="proj-ov-content" id="tabContent">
+    <div id="tab-overview">
+      <div class="proj-ov-main-grid">
+        <div>
+          <div class="card" style="margin-bottom:20px;box-shadow:none;border:1px solid var(--border)">
+            <div class="card-header">
+              <div><h5 class="card-title">Sprint Aktif</h5><p class="card-subtitle">Sprint 3 — 10 Apr s/d 30 Apr 2026</p></div>
+              <span class="tag tag-primary">Active</span>
+            </div>
+            <div style="padding:16px 20px">
+              <div class="task-mini-list" id="taskList"></div>
+            </div>
+          </div>
+          <div class="card" style="box-shadow:none;border:1px solid var(--border)">
+            <div class="card-header"><h5 class="card-title">Burndown Progress</h5></div>
+            <div id="burndownChart" style="padding:8px 16px 12px"></div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="card" style="padding:20px;box-shadow:none;border:1px solid var(--border)">
+            <h6 style="font-size:13px;font-weight:700;margin-bottom:14px">Detail Proyek</h6>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--text-muted)">Klien</span><strong>PT Maju Bersama</strong></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--text-muted)">Mulai</span><strong>01 Feb 2026</strong></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--text-muted)">Deadline</span><strong style="color:var(--warning)">30 Apr 2026</strong></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--text-muted)">Nilai Kontrak</span><strong style="color:var(--primary)">Rp 45.000.000</strong></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--text-muted)">Terbayar</span><strong style="color:var(--success)">Rp 22.500.000</strong></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--text-muted)">Sisa</span><strong style="color:var(--warning)">Rp 22.500.000</strong></div>
+            </div>
+          </div>
+
+          <div class="card" style="padding:20px;box-shadow:none;border:1px solid var(--border)">
+            <h6 style="font-size:13px;font-weight:700;margin-bottom:14px">Tim Pengembang</h6>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--primary),#8B5CF6);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700">RY</div>
+                <div style="flex:1"><div style="font-size:13px;font-weight:600">Ryan Yudistira</div><div style="font-size:11px;color:var(--text-muted)">Lead Developer</div></div>
+                <span class="tag tag-primary">Lead</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--success),#0dcb8c);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700">AD</div>
+                <div style="flex:1"><div style="font-size:13px;font-weight:600">Andi Developer</div><div style="font-size:11px;color:var(--text-muted)">Backend Developer</div></div>
+                <span class="tag tag-success">Dev</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="padding:20px;box-shadow:none;border:1px solid var(--border)">
+            <h6 style="font-size:13px;font-weight:700;margin-bottom:14px">Tech Stack</h6>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">
+              <span class="tag tag-primary">.NET Framework</span>
+              <span class="tag tag-success">MS SQL Server</span>
+              <span class="tag tag-info">REST API</span>
+              <span class="tag tag-warning">Bootstrap 5</span>
+              <span class="tag" style="background:rgba(139,92,246,.1);color:#8B5CF6">Entity Framework</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-tasks" style="display:none;padding:24px">
+      <p style="color:var(--text-muted);font-size:13px">Lihat task kanban lengkap: <a asp-controller="Tasks" asp-action="Kanban" class="card-link">Buka Kanban Board →</a></p>
+    </div>
+    <div id="tab-team"     style="display:none;padding:24px"><p style="color:var(--text-muted);font-size:13px">Data tim sedang dimuat...</p></div>
+    <div id="tab-files"    style="display:none;padding:24px"><p style="color:var(--text-muted);font-size:13px">Dokumen sedang dimuat...</p></div>
+    <div id="tab-timeline" style="display:none;padding:24px"><p style="color:var(--text-muted);font-size:13px">Timeline sedang dimuat...</p></div>
+  </div>
+</div>
+
+@section Scripts {
+<script>
+  const TASKS = [
+    { text:'Setup project boilerplate & folder structure', done:true },
+    { text:'Database schema design & ERD',                done:true },
+    { text:'Implementasi modul master karyawan',          done:true },
+    { text:'Modul absensi dengan QR Code scanner',        done:true },
+    { text:'Modul penggajian & slip gaji',                done:false },
+    { text:'Modul manajemen cuti & izin',                 done:false },
+    { text:'Dashboard laporan SDM real-time',             done:false },
+    { text:'User roles & permission management',          done:false },
+  ];
+
+  const COLORS = ['#556ee6','#34c38f','#f1b44c','#f46a6a','#50a5f1','#8B5CF6'];
+  const ASSIGNEES = ['RY','AD','RY','AD','RY','AD','RY','AD'];
+
+  function renderTasks() {
+    const list = document.getElementById('taskList');
+    list.innerHTML = TASKS.map((t, i) => `
+      <div class="task-mini-item">
+        <div class="task-mini-check ${t.done ? 'done' : ''}" onclick="toggleTask(${i}, this)">
+          ${t.done ? '<i class="bx bx-check"></i>' : ''}
+        </div>
+        <div class="task-mini-text ${t.done ? 'done' : ''}" id="task-text-${i}">${t.text}</div>
+        <div class="task-mini-assignee" style="background:${COLORS[i % COLORS.length]}">${ASSIGNEES[i]}</div>
+      </div>
+    `).join('');
+  }
+
+  function toggleTask(i, el) {
+    TASKS[i].done = !TASKS[i].done;
+    el.classList.toggle('done');
+    el.innerHTML = TASKS[i].done ? '<i class="bx bx-check"></i>' : '';
+    document.getElementById(`task-text-${i}`).classList.toggle('done');
+  }
+
+  function showTab(tab, btn) {
+    document.querySelectorAll('.proj-ov-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    ['overview','tasks','team','files','timeline'].forEach(t => {
+      const el = document.getElementById(`tab-${t}`);
+      if (el) el.style.display = (t === tab) ? '' : 'none';
+    });
+  }
+
+  new ApexCharts(document.getElementById('burndownChart'), {
+    chart: { type: 'area', height: 200, toolbar: { show: false }, animations: { speed: 800 }, zoom: { enabled: false } },
+    series: [
+      { name: 'Ideal',  data: [24, 20, 16, 12, 8, 4, 0] },
+      { name: 'Aktual', data: [24, 22, 18, 15, 11, null, null] },
+    ],
+    xaxis: { categories: ['Hari 1','Hari 5','Hari 10','Hari 15','Hari 20','Hari 25','Hari 30'], labels: { style: { fontSize: '11px' } } },
+    yaxis: { labels: { style: { fontSize: '11px' } } },
+    colors: ['#adb5bd', '#556ee6'],
+    stroke: { width: [2, 2.5], curve: 'smooth', dashArray: [4, 0] },
+    fill: { type: ['solid', 'gradient'], opacity: [0, 0.15] },
+    dataLabels: { enabled: false },
+    legend: { fontSize: '12px', fontFamily: 'Poppins' },
+    grid: { borderColor: '#f0f2f5', strokeDashArray: 4 },
+    tooltip: { shared: true, style: { fontFamily: 'Poppins' } },
+  }).render();
+
+  renderTasks();
+</script>
+}
