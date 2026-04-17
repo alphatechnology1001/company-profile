@@ -1,0 +1,389 @@
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Daftar Kontak";
+}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Kontak Klien</h1>
+    <p class="page-subtitle">Kelola daftar klien aktif dan calon klien Alpha Technology</p>
+  </div>
+  <div class="page-header-actions">
+    <button class="btn btn-primary" onclick="openAddModal()">
+      <i class='bx bx-plus'></i> Tambah Kontak
+    </button>
+  </div>
+</div>
+
+<!-- Stat Summary -->
+<div class="stat-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:24px">
+  <div class="stat-card" style="padding:18px 20px">
+    <div class="stat-card-inner">
+      <div class="stat-info">
+        <p class="stat-label">Total Kontak</p>
+        <h2 class="stat-value" id="statTotal">0</h2>
+      </div>
+      <div class="stat-icon bg-primary"><i class='bx bx-user-pin'></i></div>
+    </div>
+  </div>
+  <div class="stat-card" style="padding:18px 20px">
+    <div class="stat-card-inner">
+      <div class="stat-info">
+        <p class="stat-label">Klien Aktif</p>
+        <h2 class="stat-value" id="statKlien" style="color:var(--success)">0</h2>
+      </div>
+      <div class="stat-icon bg-success"><i class='bx bxs-user-check'></i></div>
+    </div>
+  </div>
+  <div class="stat-card" style="padding:18px 20px">
+    <div class="stat-card-inner">
+      <div class="stat-info">
+        <p class="stat-label">Calon Klien</p>
+        <h2 class="stat-value" id="statCalon" style="color:var(--warning)">0</h2>
+      </div>
+      <div class="stat-icon bg-warning"><i class='bx bx-user-plus'></i></div>
+    </div>
+  </div>
+  <div class="stat-card" style="padding:18px 20px">
+    <div class="stat-card-inner">
+      <div class="stat-info">
+        <p class="stat-label">Kontak Bulan Ini</p>
+        <h2 class="stat-value" id="statNew">3</h2>
+      </div>
+      <div class="stat-icon bg-info"><i class='bx bx-user-voice'></i></div>
+    </div>
+  </div>
+</div>
+
+<div class="card" style="padding:0">
+  <!-- Toolbar -->
+  <div class="contacts-toolbar">
+    <div class="contacts-search">
+      <i class='bx bx-search'></i>
+      <input type="text" id="contactSearch" placeholder="Cari nama, perusahaan, atau email..." oninput="filterContacts()" />
+    </div>
+    <div class="contact-status-tabs">
+      <button class="contact-status-tab active" onclick="filterByStatus('', this)">Semua</button>
+      <button class="contact-status-tab" onclick="filterByStatus('klien', this)">Klien</button>
+      <button class="contact-status-tab" onclick="filterByStatus('calon', this)">Calon Klien</button>
+    </div>
+    <select class="filter-select" id="contactSort" onchange="filterContacts()" style="margin-left:auto">
+      <option value="">Urutkan: A–Z</option>
+      <option value="z-a">Urutkan: Z–A</option>
+      <option value="newest">Terbaru</option>
+      <option value="oldest">Terlama</option>
+    </select>
+  </div>
+
+  <!-- Cards Grid -->
+  <div class="contacts-grid" id="contactsGrid"></div>
+
+  <!-- Empty State -->
+  <div id="emptyState" style="display:none;text-align:center;padding:60px 24px">
+    <i class='bx bx-user-x' style="font-size:48px;color:var(--text-muted);margin-bottom:12px;display:block"></i>
+    <p style="color:var(--text-muted);font-size:14px">Tidak ada kontak yang cocok dengan pencarian.</p>
+  </div>
+
+  <!-- Footer Count -->
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-top:1px solid var(--border)">
+    <span style="font-size:13px;color:var(--text-secondary)">Menampilkan <strong id="contactCount">0</strong> kontak</span>
+  </div>
+</div>
+
+<!-- ===== Add/Edit Modal ===== -->
+@section Modals {
+<div class="modal-overlay" id="contactModal">
+  <div class="modal-box" style="max-width:520px">
+    <div class="modal-header">
+      <h5 id="modalTitle">Tambah Kontak Baru</h5>
+      <button class="modal-close" onclick="closeModal()"><i class='bx bx-x'></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editContactId" />
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Nama Lengkap *</label>
+          <input type="text" class="form-control" id="fName" placeholder="cth: Budi Santoso" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Jabatan</label>
+          <input type="text" class="form-control" id="fRole" placeholder="cth: CEO, Owner, HRD..." />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Perusahaan / Bisnis *</label>
+        <input type="text" class="form-control" id="fCompany" placeholder="cth: PT Maju Bersama" />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" id="fEmail" placeholder="email@perusahaan.com" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">No. WhatsApp</label>
+          <input type="text" class="form-control" id="fPhone" placeholder="+62 812 xxxx xxxx" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Status *</label>
+          <select class="form-control" id="fStatus">
+            <option value="klien">Klien</option>
+            <option value="calon">Calon Klien</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Segmen Bisnis</label>
+          <select class="form-control" id="fSegment">
+            <option value="">-- Pilih --</option>
+            <option>UMKM</option>
+            <option>Startup</option>
+            <option>Menengah</option>
+            <option>Korporat</option>
+            <option>Koperasi</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Layanan yang Diminati</label>
+        <input type="text" class="form-control" id="fService" placeholder="cth: Custom Web App, API Integration..." />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Catatan</label>
+        <textarea class="form-control" id="fNotes" rows="2" placeholder="Info tambahan tentang kontak ini..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal()">Batal</button>
+      <button class="btn btn-primary" onclick="saveContact()"><i class='bx bx-check'></i> Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal-box" style="max-width:460px">
+    <div class="modal-header">
+      <h5>Detail Kontak</h5>
+      <button class="modal-close" onclick="closeDetailModal()"><i class='bx bx-x'></i></button>
+    </div>
+    <div class="modal-body" id="detailModalBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeDetailModal()">Tutup</button>
+      <button class="btn btn-primary" id="detailEditBtn"><i class='bx bx-edit'></i> Edit</button>
+    </div>
+  </div>
+</div>
+}
+
+@section Scripts {
+<script>
+  let CONTACTS = [
+    { id:1,  name:'Budi Santoso',      role:'CEO',               company:'PT Maju Bersama',       email:'budi@majubersama.co.id',     phone:'+62 812 1111 2222', status:'klien',  segment:'Menengah', service:'Sistem Internal',   notes:'Klien lama sejak 2024. Proyek HR aktif.', added:'01 Feb 2026' },
+    { id:2,  name:'Rina Hapsari',      role:'Owner',             company:'Toko Berkah Online',     email:'rina@tokoberkhah.com',        phone:'+62 821 3333 4444', status:'klien',  segment:'UMKM',     service:'Custom Web App',    notes:'E-Commerce Portal sedang berjalan.', added:'10 Feb 2026' },
+    { id:3,  name:'Hendro Prasetyo',   role:'Direktur',          company:'CV Logistik Nusantara',  email:'hendro@logistik-nu.id',       phone:'+62 813 5555 6666', status:'klien',  segment:'UMKM',     service:'Sistem Internal',   notes:'Inventory System sudah selesai.', added:'05 Jan 2026' },
+    { id:4,  name:'Farhan Ramadhan',   role:'CTO',               company:'Startup FinUp',          email:'farhan@finup.id',             phone:'+62 811 7777 8888', status:'klien',  segment:'Startup',  service:'API Integration',   notes:'Payment Gateway sedang In Progress.', added:'15 Jan 2026' },
+    { id:5,  name:'Dewi Anggraini',    role:'Manajer IT',        company:'PT Sukses Mandiri',      email:'dewi@suksesmandiri.co.id',    phone:'+62 822 9999 0000', status:'klien',  segment:'Menengah', service:'Data & Reporting',  notes:'Analytics Dashboard sedang Planning.', added:'20 Jan 2026' },
+    { id:6,  name:'Agus Kurniawan',    role:'Ketua',             company:'Koperasi Sejahtera',     email:'agus@kopsejahtera.co.id',     phone:'+62 817 1234 5678', status:'klien',  segment:'Koperasi', service:'Sistem Internal',   notes:'Approval Workflow System.', added:'25 Jan 2026' },
+    { id:7,  name:'Siti Nurhaliza',    role:'Owner',             company:'Siti Fashion Store',     email:'siti@fashionstore.id',        phone:'+62 818 2345 6789', status:'calon',  segment:'UMKM',     service:'Custom Web App',    notes:'Tertarik toko online. Follow up minggu ini.', added:'01 Apr 2026' },
+    { id:8,  name:'Rizky Firmansyah',  role:'Founder',           company:'RizkyTech Solutions',    email:'rizky@rizkytech.id',          phone:'+62 819 3456 7890', status:'calon',  segment:'Startup',  service:'API Integration',   notes:'Butuh integrasi payment. Demo sudah dilakukan.', added:'05 Apr 2026' },
+    { id:9,  name:'Linda Kusuma',      role:'HRD Manager',       company:'PT Karya Utama',         email:'linda@karyautama.co.id',      phone:'+62 812 4567 8901', status:'calon',  segment:'Menengah', service:'Sistem Internal',   notes:'Butuh sistem HR seperti PT Maju. Proposal dikirim.', added:'10 Apr 2026' },
+    { id:10, name:'Yanto Wijaya',      role:'Direktur Operasi',  company:'CV Mitra Abadi',         email:'yanto@mitraabadi.id',         phone:'+62 811 5678 9012', status:'calon',  segment:'UMKM',     service:'Custom Web App',    notes:'Masih mempertimbangkan budget.', added:'12 Apr 2026' },
+  ];
+
+  const AVATAR_COLORS = ['#556ee6','#34c38f','#f1b44c','#f46a6a','#50a5f1','#8B5CF6','#e91e63','#00bcd4','#ff5722','#4caf50'];
+  let currentFilter = '';
+  let nextId = 11;
+
+  function statusBadge(status) {
+    return status === 'klien'
+      ? '<span class="status-badge completed" style="font-size:11px">Klien</span>'
+      : '<span class="status-badge" style="background:rgba(241,180,76,.12);color:#b7801a;font-size:11px">Calon Klien</span>';
+  }
+
+  function renderContacts(data) {
+    const grid = document.getElementById('contactsGrid');
+    const empty = document.getElementById('emptyState');
+    document.getElementById('contactCount').textContent = data.length;
+    if (!data.length) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
+    empty.style.display = 'none';
+    grid.innerHTML = data.map((c, i) => {
+      const initials = c.name.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
+      const color = AVATAR_COLORS[c.id % AVATAR_COLORS.length];
+      return `
+        <div class="contact-card">
+          <div class="contact-card-badge">${statusBadge(c.status)}</div>
+          <div class="contact-avatar" style="background:linear-gradient(135deg,${color},${color}cc)">${initials}</div>
+          <div class="contact-name">${c.name}</div>
+          <div class="contact-company">${c.role} · ${c.company}</div>
+          <div class="contact-tags">
+            ${c.segment ? `<span class="tag tag-primary" style="font-size:11px">${c.segment}</span>` : ''}
+            ${c.service ? `<span class="tag" style="background:rgba(80,165,241,.1);color:#1a78c2;font-size:11px">${c.service}</span>` : ''}
+          </div>
+          <div class="contact-info-row">
+            ${c.email ? `<div class="contact-info-item"><i class='bx bx-envelope'></i><span>${c.email}</span></div>` : ''}
+            ${c.phone ? `<div class="contact-info-item"><i class='bx bxl-whatsapp' style="color:#25D366"></i><span>${c.phone}</span></div>` : ''}
+          </div>
+          <div class="contact-card-actions">
+            <button class="btn btn-outline btn-sm" onclick="openDetail(${c.id})"><i class='bx bx-show'></i> Detail</button>
+            <button class="btn btn-outline btn-sm" onclick="openEditModal(${c.id})"><i class='bx bx-edit'></i></button>
+            <button class="btn btn-outline btn-sm btn-icon" onclick="deleteContact(${c.id})" title="Hapus"><i class='bx bx-trash' style="color:var(--danger)"></i></button>
+          </div>
+        </div>`;
+    }).join('');
+
+    // update stats
+    document.getElementById('statTotal').textContent = CONTACTS.length;
+    document.getElementById('statKlien').textContent = CONTACTS.filter(c => c.status === 'klien').length;
+    document.getElementById('statCalon').textContent = CONTACTS.filter(c => c.status === 'calon').length;
+  }
+
+  function filterContacts() {
+    const q    = document.getElementById('contactSearch').value.toLowerCase();
+    const sort = document.getElementById('contactSort').value;
+    let data   = CONTACTS.filter(c =>
+      (!currentFilter || c.status === currentFilter) &&
+      (!q || c.name.toLowerCase().includes(q) || c.company.toLowerCase().includes(q) || (c.email||'').toLowerCase().includes(q))
+    );
+    if (sort === 'z-a')    data.sort((a,b) => b.name.localeCompare(a.name));
+    else if (sort === 'newest') data.sort((a,b) => b.id - a.id);
+    else if (sort === 'oldest') data.sort((a,b) => a.id - b.id);
+    else                        data.sort((a,b) => a.name.localeCompare(b.name));
+    renderContacts(data);
+  }
+
+  function filterByStatus(status, btn) {
+    document.querySelectorAll('.contact-status-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = status;
+    filterContacts();
+  }
+
+  // ---- Modal Add ----
+  function openAddModal() {
+    document.getElementById('modalTitle').textContent = 'Tambah Kontak Baru';
+    document.getElementById('editContactId').value = '';
+    ['fName','fRole','fCompany','fEmail','fPhone','fService','fNotes'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('fStatus').value = 'calon';
+    document.getElementById('fSegment').value = '';
+    document.getElementById('contactModal').classList.add('show');
+    setTimeout(() => document.getElementById('fName').focus(), 200);
+  }
+
+  function openEditModal(id) {
+    const c = CONTACTS.find(x => x.id === id);
+    if (!c) return;
+    document.getElementById('modalTitle').textContent = 'Edit Kontak';
+    document.getElementById('editContactId').value = id;
+    document.getElementById('fName').value    = c.name;
+    document.getElementById('fRole').value    = c.role;
+    document.getElementById('fCompany').value = c.company;
+    document.getElementById('fEmail').value   = c.email;
+    document.getElementById('fPhone').value   = c.phone;
+    document.getElementById('fStatus').value  = c.status;
+    document.getElementById('fSegment').value = c.segment || '';
+    document.getElementById('fService').value = c.service || '';
+    document.getElementById('fNotes').value   = c.notes   || '';
+    document.getElementById('contactModal').classList.add('show');
+    closeDetailModal();
+    setTimeout(() => document.getElementById('fName').focus(), 200);
+  }
+
+  function closeModal() { document.getElementById('contactModal').classList.remove('show'); }
+
+  function saveContact() {
+    const name    = document.getElementById('fName').value.trim();
+    const company = document.getElementById('fCompany').value.trim();
+    if (!name || !company) {
+      if (!name)    document.getElementById('fName').focus();
+      else          document.getElementById('fCompany').focus();
+      return;
+    }
+    const editId = parseInt(document.getElementById('editContactId').value);
+    const data = {
+      name, role: document.getElementById('fRole').value.trim(),
+      company, email: document.getElementById('fEmail').value.trim(),
+      phone:   document.getElementById('fPhone').value.trim(),
+      status:  document.getElementById('fStatus').value,
+      segment: document.getElementById('fSegment').value,
+      service: document.getElementById('fService').value.trim(),
+      notes:   document.getElementById('fNotes').value.trim(),
+      added:   new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' }),
+    };
+
+    if (editId) {
+      const idx = CONTACTS.findIndex(x => x.id === editId);
+      if (idx !== -1) CONTACTS[idx] = { ...CONTACTS[idx], ...data };
+    } else {
+      CONTACTS.unshift({ id: nextId++, ...data });
+    }
+    closeModal();
+    filterContacts();
+    showToast(editId ? 'Kontak berhasil diperbarui!' : 'Kontak baru berhasil ditambahkan!');
+  }
+
+  // ---- Detail Modal ----
+  function openDetail(id) {
+    const c = CONTACTS.find(x => x.id === id);
+    if (!c) return;
+    const initials = c.name.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
+    const color = AVATAR_COLORS[c.id % AVATAR_COLORS.length];
+    document.getElementById('detailModalBody').innerHTML = `
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+        <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,${color},${color}cc);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff;flex-shrink:0">${initials}</div>
+        <div>
+          <div style="font-size:16px;font-weight:700">${c.name}</div>
+          <div style="font-size:13px;color:var(--text-muted)">${c.role} · ${c.company}</div>
+          <div style="margin-top:5px">${statusBadge(c.status)}</div>
+        </div>
+      </div>
+      <div class="contact-detail-grid" style="margin-bottom:16px">
+        <div class="contact-detail-item">
+          <span class="contact-detail-label">Email</span>
+          <span class="contact-detail-value">${c.email || '—'}</span>
+        </div>
+        <div class="contact-detail-item">
+          <span class="contact-detail-label">WhatsApp</span>
+          <span class="contact-detail-value">${c.phone || '—'}</span>
+        </div>
+        <div class="contact-detail-item">
+          <span class="contact-detail-label">Segmen</span>
+          <span class="contact-detail-value">${c.segment || '—'}</span>
+        </div>
+        <div class="contact-detail-item">
+          <span class="contact-detail-label">Ditambahkan</span>
+          <span class="contact-detail-value">${c.added}</span>
+        </div>
+      </div>
+      ${c.service ? `<div class="contact-detail-item" style="margin-bottom:12px"><span class="contact-detail-label">Layanan Diminati</span><span class="contact-detail-value">${c.service}</span></div>` : ''}
+      ${c.notes   ? `<div style="background:var(--body-bg);border-radius:8px;padding:12px;font-size:13px;color:var(--text-secondary);line-height:1.6">${c.notes}</div>` : ''}
+    `;
+    document.getElementById('detailEditBtn').onclick = () => openEditModal(id);
+    document.getElementById('detailModal').classList.add('show');
+  }
+
+  function closeDetailModal() { document.getElementById('detailModal').classList.remove('show'); }
+
+  // ---- Delete ----
+  function deleteContact(id) {
+    if (!confirm('Hapus kontak ini?')) return;
+    CONTACTS = CONTACTS.filter(c => c.id !== id);
+    filterContacts();
+  }
+
+  // ---- Toast ----
+  function showToast(msg) {
+    const t = document.createElement('div');
+    t.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#34c38f;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:500;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.15);display:flex;align-items:center;gap:8px;';
+    t.innerHTML = `<i class='bx bx-check-circle' style='font-size:18px'></i> ${msg}`;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+  }
+
+  // Close modals on backdrop click
+  document.getElementById('contactModal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+  document.getElementById('detailModal').addEventListener('click',  function(e) { if (e.target === this) closeDetailModal(); });
+
+  filterContacts();
+</script>
+}
